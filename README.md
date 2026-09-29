@@ -1,5 +1,9 @@
 # DSH Quick Ask
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/h1284646296-rgb/DeepSeek-Harness-QuickAsk?color=blue)](https://github.com/h1284646296-rgb/DeepSeek-Harness-QuickAsk/releases/latest)
+[![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey)](https://github.com/h1284646296-rgb/DeepSeek-Harness-QuickAsk)
+
 **连按两下 `Shift`，屏幕中央「duang」一声弹出一个转着彩虹跑马灯的输入框；敲一句话、
 选好模型和推理深度，回车，DeepSeek Harness 就去做。**
 
@@ -214,6 +218,7 @@ dsh-quickask/
 ├── install.sh                      编译 + 安装 + 提取目录 + 写配置 + 注册 LaunchAgent
 ├── uninstall.sh                    卸载（--purge 连配置日志一起清）
 ├── test.sh                         冒烟测试（--e2e 真跑一次）
+├── LICENSE                         MIT
 ├── bin/dsh-quickask                CLI 包装
 ├── fallback/quickask_tk.py         备选方案 B：Python + Tkinter，零编译
 └── build/  dist/                   构建产物（dist/DSH Quick Ask.app）
@@ -625,3 +630,11 @@ launchctl kickstart -k gui/$(id -u)/local.dsh.quickask    # 重启常驻实例
 10. **结果不渲染 Markdown**，面板里是纯文本 + 颜色区分。
 11. **DSH 升级换 npx 缓存目录后** `dshEntry` 会失效，重跑 `install.sh`
    即可（应用启动时也有兜底搜索，取最新的一份）。
+
+---
+
+## 许可证
+
+[MIT](LICENSE) © 2026 h1284646296-rgb
+
+随便用：商用、修改、再分发、私有化都可以，保留版权声明即可。
