@@ -57,6 +57,7 @@ fetch() {
 }
 
 APP_SRC=""
+INSTALLER_FROM_ZIP=""
 
 if [ -d "$ROOT/Sources" ] && [ -f "$ROOT/build.sh" ]; then
   echo "==> 从源码编译"
@@ -71,6 +72,9 @@ else
     if fetch "https://github.com/$REPO_SLUG/releases/latest/download/DSH-QuickAsk-app.zip" app.zip 2>/dev/null \
        && unzip -qo app.zip 2>/dev/null; then
       APP_SRC="$TEMP/$APP_NAME.app"
+      # 预编译包里带的是「安装.command」（就是 install-app.sh 的副本），
+      # 不是 tools/install-app.sh —— 记下来，下面直接用这个。
+      INSTALLER_FROM_ZIP="$TEMP/安装.command"
       echo "    ✓ 下载完成"
     else
       echo "    下载不到（网络或还没有 Release），改用源码编译"
@@ -101,11 +105,12 @@ fi
 
 [ -d "$APP_SRC" ] || { echo "✗ 没能得到 $APP_NAME.app" >&2; exit 1; }
 
+# 找安装器：优先源码里的 tools/install-app.sh，其次预编译包里的「安装.command」。
 INSTALLER="$ROOT/tools/install-app.sh"
-if [ ! -f "$INSTALLER" ]; then
-  INSTALLER="$(find "${TEMP:-/nonexistent}" "$ROOT" -name install-app.sh -path '*/tools/*' 2>/dev/null | head -1)"
-fi
-[ -f "$INSTALLER" ] || INSTALLER="$(find "${TEMP:-/nonexistent}" -maxdepth 4 -name install-app.sh 2>/dev/null | head -1)"
-[ -f "$INSTALLER" ] || { echo "✗ 找不到 tools/install-app.sh" >&2; exit 1; }
+[ -f "$INSTALLER" ] || INSTALLER="$INSTALLER_FROM_ZIP"
+[ -f "$INSTALLER" ] || INSTALLER="$(find "$ROOT" -maxdepth 3 -name install-app.sh 2>/dev/null | head -1)"
+[ -f "$INSTALLER" ] || INSTALLER="$(find "$ROOT" -maxdepth 2 -name '安装.command' 2>/dev/null | head -1)"
+[ -f "$INSTALLER" ] || { echo "✗ 找不到安装脚本（tools/install-app.sh 或 安装.command）" >&2; exit 1; }
+echo "==> 使用安装器: $INSTALLER"
 
 bash "$INSTALLER" "$APP_SRC" ${PASSTHRU[@]+"${PASSTHRU[@]}"}
