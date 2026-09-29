@@ -17,6 +17,15 @@ IDENTIFIER="local.dsh.quickask"
 KEYCHAIN="$HOME/Library/Keychains/dsh-quickask.keychain-db"
 IDENTITY_NAME="DSH Quick Ask Local Signing"
 
+# 发布用的构建必须 ad-hoc：自签证书只存在于作者机器上，下载者的系统不认识它，
+# 反而比 ad-hoc 更容易被 Gatekeeper 判成「已损坏」。
+if [ "${DSH_QUICKASK_ADHOC:-0}" = "1" ]; then
+  echo "==> signing (ad-hoc，发布用)"
+  codesign --force --sign - --identifier "$IDENTIFIER" --timestamp=none "$APP" >/dev/null
+  codesign -d -r- "$APP" 2>&1 | tail -1
+  exit 0
+fi
+
 SIGN_HASH=""
 if [ -f "$KEYCHAIN" ]; then
   security unlock-keychain -p dshquickask "$KEYCHAIN" >/dev/null 2>&1 || true
