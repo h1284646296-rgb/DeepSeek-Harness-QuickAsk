@@ -20,6 +20,23 @@
        ↑ 四周是持续旋转的彩虹跑马灯边框
 ```
 
+## 快速开始
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/h1284646296-rgb/DeepSeek-Harness-QuickAsk/main/install.sh | bash
+```
+
+不想跑一行命令，就去 [Releases](https://github.com/h1284646296-rgb/DeepSeek-Harness-QuickAsk/releases/latest)
+下载 `DSH-QuickAsk-app.zip`，解压后双击 **`安装.command`**。
+
+装完还需要**授权一次**：系统设置 → 隐私与安全性 → 给「DSH Quick Ask」打开
+「输入监视」或「辅助功能」（任一项即可），然后点菜单栏 ✨ →「重启 DSH Quick Ask」。
+只需一次，之后长期有效。详见[第 4 节](#4-安装配置启动)。
+
+**前提**：机器上已经装好 DeepSeek Harness，终端里 `dsh --version` 能跑。
+
+---
+
 这不是皮肤层面的改装：模型和推理深度是**真的按次传进 harness** 的
 （见第 5 节，有证伪测试）。
 
@@ -206,15 +223,60 @@ dsh-quickask/
 
 ## 4. 安装、配置、启动
 
-### 安装（一条命令）
+### 安装：三种方式，任选一种
+
+#### 方式一：一行命令（最省事）
 
 ```bash
-cd ~/Desktop/harness/dsh-quickask
+curl -fsSL https://raw.githubusercontent.com/h1284646296-rgb/DeepSeek-Harness-QuickAsk/main/install.sh | bash
+```
+
+它会先尝试下载本仓库 Release 里的**预编译包**（不需要编译器），
+拿不到才自动下载源码在本机编译（需要 Xcode Command Line Tools，缺了会提示你装）。
+
+#### 方式二：下载 Release 里的 zip
+
+到 [Releases](https://github.com/h1284646296-rgb/DeepSeek-Harness-QuickAsk/releases/latest)
+下载 `DSH-QuickAsk-app.zip`，解压后：
+
+```
+DSH Quick Ask.app      双击即用的应用
+安装.command            ← 双击它
+卸载.command
+使用说明.txt
+tools/                  安装时会用来建本地签名身份
+```
+
+双击 `安装.command`；若 macOS 提示「来自身份不明的开发者」，
+**右键点它 → 打开 → 再点「打开」**（未做公证的应用，第一次都这样）。
+命令行等效：
+
+```bash
+cd <解压目录> && bash 安装.command
+```
+
+#### 方式三：克隆自己编译
+
+```bash
+git clone https://github.com/h1284646296-rgb/DeepSeek-Harness-QuickAsk.git
+cd DeepSeek-Harness-QuickAsk
 bash install.sh
 ```
 
-六步：编译 → 装到 `/Applications` → 探测 node/dsh → 提取模型目录 →
-写 `config.json` → 注册 LaunchAgent 并启动。
+### 安装器会做什么
+
+不管哪种方式，最后都走同一段逻辑（`tools/install-app.sh`）：
+
+1. 去掉 `com.apple.quarantine`（从网上下载的 app 会被 Gatekeeper 拦住）；
+2. 建一个**本地自签的代码签名身份**并重新签名 —— 这样签名不再随重新编译变化，
+   「输入监视」授权一次就长期有效（见下一节）；
+3. 装到 `/Applications`（不可写则 `~/Applications`）；
+4. 用应用自带的 `--catalog` 从 `~/.dsh/settings.yaml` 提取模型目录，
+   写进 `config.json`；
+5. 写 `~/Library/LaunchAgents/local.dsh.quickask.plist` 并 `launchctl bootstrap`，
+   立刻启动 + 以后每次登录自动启动。
+
+**不需要 sudo，不往 `/Library` 写任何东西。**
 
 ### ⚠️ 连按两下 Shift 需要一次授权（只做一次，之后永久有效）
 
