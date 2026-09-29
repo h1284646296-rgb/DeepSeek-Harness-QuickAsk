@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Thin CLI wrapper around the installed app binary, so scripts do not have to
+# spell out the bundle path. Falls back to the local build when the app has not
+# been installed yet.
+set -euo pipefail
+
+CANDIDATES=(
+  "/Applications/DSH Quick Ask.app/Contents/MacOS/DSHQuickAsk"
+  "$HOME/Applications/DSH Quick Ask.app/Contents/MacOS/DSHQuickAsk"
+  "/Users/hwx/Desktop/harness/dsh-quickask/dist/DSH Quick Ask.app/Contents/MacOS/DSHQuickAsk"
+)
+
+for candidate in "${CANDIDATES[@]}"; do
+  if [ -x "$candidate" ]; then
+    exec "$candidate" "$@"
+  fi
+done
+
+echo "dsh-quickask: 找不到已安装的应用，请先运行 install.sh" >&2
+exit 127
